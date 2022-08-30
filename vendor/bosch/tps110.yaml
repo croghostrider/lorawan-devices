@@ -27,6 +27,18 @@ firmwareVersions:
       AS923:
         id: tps110-as923
         codec: tps110-0292-codec
+  - version: 0.39.2
+    numeric: 392
+    hardwareVersions:
+      - '9'
+    profiles:
+      EU863-870:
+        id: tps110-eu868
+        lorawanCertified: true
+        codec: tps110-0392-codec
+      AS923:
+        id: tps110-as923
+        codec: tps110-0392-codec
 sensors:
   - magnetometer
   - gps
