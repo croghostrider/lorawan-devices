@@ -111,7 +111,7 @@ function decodeUplink(input) {
       }
       data.firmwareVersion = input.bytes[12] + '.' + input.bytes[13] + '.' + input.bytes[14];
       data.sequenceNumber = debug_obj.sequence_number;
-      data.debugCodes = debug_obj.debugCode;
+      data.debugCode = debug_obj.debugCode;
       data.debugCodeDescription = debug_obj.debugCodeDescription;
       data.timestamp = debug_obj.timestamp;
       break;

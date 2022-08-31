@@ -18,6 +18,21 @@ uplinkDecoder:
           type: heartbeat
           occupied: true
           temperature: -1
+    - description: Startup with code 205 and time
+      input:
+        fPort: 3
+        bytes: [0x0a, 0x00, 0x00, 0x00, 0x97, 0x03, 0x20, 0xcd, 0x00, 0x21, 0x00, 0x00, 0x00, 0x27, 0x02, 0x03, 0x00]
+      output:
+        data:
+          type: startup
+          debugCode: 205
+          debugCodeDescription: null
+          sequenceNumber: 33
+          firmwareVersion: '0.39.2'
+          resetCause: 0
+          resetReason: 'System Request'
+          occupied: false
+          timestamp: 167772160
     - description: Debug code 209
       input:
         fPort: 6
@@ -29,3 +44,14 @@ uplinkDecoder:
           debugCodeDescription: 'Cause for last reset: Power-on'
           sequenceNumber: 25
           timestamp: 0
+    - description: Debug code 205 with time
+      input:
+        fPort: 6
+        bytes: [0x0a, 0x00, 0x00, 0x00, 0x97, 0x03, 0x20, 0xcd, 0x00, 0x1f]
+      output:
+        data:
+          type: debug
+          debugCode: 205
+          debugCodeDescription: null
+          sequenceNumber: 31
+          timestamp: 167772160
