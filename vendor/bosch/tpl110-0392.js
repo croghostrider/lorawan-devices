@@ -1,4 +1,4 @@
-var debugCodes = {
+var debug_codes = {
   201: 'LoRa join request failed',
   208: 'Cause for last reset: Watchdog',
   209: 'Cause for last reset: Power-on',
@@ -47,21 +47,21 @@ var DeviceUsageRequests = [
   'Number of parking status changes detected',
   'Time running in occupied state',
   'Number of uplink messages sent',
-  'Number of times radar has been triggered ',
+  'Number of times radar has been triggered',
   'Time running since restart',
   'Number of resets since installation',
-  'Time running since installation ',
+  'Time running since installation',
 ];
 function decodeDebugCode(bytes) {
   return ((bytes[2] & 0xf) << 8) + bytes[3];
 }
 
 function decodeDebugMessage(bytes) {
-  var debugCode = decodeDebugCode(bytes.slice(4, 8));
+  var debug_code = decodeDebugCode(bytes.slice(4, 8));
   return {
     sequence_number: (bytes[8] << 8) + bytes[9],
-    debugCode: debugCode,
-    debugCodeDescription: debugCodes[debugCode],
+    debug_code: debug_code,
+    debug_code_description: debug_codes[debug_code],
     timestamp: (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3],
   };
 }
@@ -91,36 +91,36 @@ function decodeUplink(input) {
       data.type = 'startup';
       data.occupied = (input.bytes[16] & 0x1) === 0x1;
 
-      data.resetCause = 0;
+      data.reset_cause = 0;
       switch (input.bytes[15]) {
         case 1:
-          data.resetReason = 'Watchdog';
+          data.reset_reason = 'Watchdog';
           break;
         case 2:
-          data.resetReason = 'Power On';
+          data.reset_reason = 'Power On';
           break;
         case 3:
-          data.resetReason = 'System Request';
+          data.reset_reason = 'System Request';
           break;
         case 4:
-          data.resetReason = 'External Pin';
+          data.reset_reason = 'External Pin';
           break;
         case 5:
-          data.resetReason = 'Lockup';
+          data.reset_reason = 'Lockup';
           break;
         case 6:
-          data.resetReason = 'Brownout';
+          data.reset_reason = 'Brownout';
           break;
         case 7:
-          data.resetReason = 'Others';
+          data.reset_reason = 'Others';
           break;
         default:
-          data.resetReason = 'Unknown';
+          data.reset_reason = 'Unknown';
       }
-      data.firmwareVersion = input.bytes[12] + '.' + input.bytes[13] + '.' + input.bytes[14];
-      data.sequenceNumber = debug_obj.sequence_number;
-      data.debugCode = debug_obj.debugCode;
-      data.debugCodeDescription = debug_obj.debugCodeDescription;
+      data.firmware_version = input.bytes[12] + '.' + input.bytes[13] + '.' + input.bytes[14];
+      data.sequence_number = debug_obj.sequence_number;
+      data.debug_code = debug_obj.debug_code;
+      data.debug_code_description = debug_obj.debug_code_description;
       data.timestamp = debug_obj.timestamp;
       break;
 
@@ -131,12 +131,12 @@ function decodeUplink(input) {
       switch (input.bytes.length) {
         // if there are three bytes to the packet then it's the firmware version
         case 3:
-          data.packet_type += ' - Firmware version';
+          data.type += ' - Firmware version';
           data.firmware_version = input.bytes[0] + '.' + input.bytes[1] + '.' + input.bytes[2];
           break;
         // if there are eleven bytes to the packet then it's the devices uniform resource name
         case 11:
-          data.packet_type += ' - Device URN';
+          data.type += ' - Device URN';
           // Bytes 0 - 2 are the first six digits of the DevEUI whilst bytes 6 - 10 are the remaining 10 digits, convert to string
           data.devEUI =
             input.bytes[0].toString(16) +
@@ -165,15 +165,15 @@ function decodeUplink(input) {
       data.type = 'device usage';
       switch (input.bytes[0]) {
         case 0:
-          data.packet_type += ' - Number of parking status changes detected';
+          data.type = 'Number of parking status changes detected';
           data.parking_status_changes = (input.bytes[1] << 24) + (input.bytes[2] << 16) + (input.bytes[3] << 8) + input.bytes[4];
           break;
         case 1:
-          data.packet_type += ' - Time running in occupied state';
-          data.time_in_occupied_state_seconds = (input.bytes[1] << 24) + (input.bytes[2] << 16) + (input.bytes[3] << 8) + input.bytes[4];
+          data.type = 'Time running in occupied state';
+          data.time_in_seconds = (input.bytes[1] << 24) + (input.bytes[2] << 16) + (input.bytes[3] << 8) + input.bytes[4];
           break;
         case 2:
-          data.packet_type += ' - Number of uplink messages sent';
+          data.type = 'Number of uplink messages sent';
           data.uplink_messages_sent = {
             dr5_sf7: (input.bytes[16] << 16) + (input.bytes[17] << 8) + input.bytes[18],
             dr4_sf8: (input.bytes[13] << 16) + (input.bytes[14] << 8) + input.bytes[15],
@@ -184,15 +184,15 @@ function decodeUplink(input) {
           };
           break;
         case 3:
-          data.packet_type += ' - Number of times the radar has been triggered';
+          data.type = 'Number of times the radar has been triggered';
           data.times_radar_triggered = (input.bytes[1] << 24) + (input.bytes[2] << 16) + (input.bytes[3] << 8) + input.bytes[4];
           break;
         case 4:
-          data.packet_type += ' - Time running since restart';
+          data.type = 'Time running since restart';
           data.time_since_restart_seconds = (input.bytes[1] << 24) + (input.bytes[2] << 16) + (input.bytes[3] << 8) + input.bytes[4];
           break;
         case 5:
-          data.packet_type += ' - Number of resets since installation';
+          data.type = 'Number of resets since installation';
           data.resets_since_install = {
             software_requested: (input.bytes[7] << 8) + input.bytes[6],
             watchdog: input.bytes[5],
@@ -203,7 +203,7 @@ function decodeUplink(input) {
           };
           break;
         case 6:
-          data.packet_type += ' - Time running since installation';
+          data.type = 'Time running since installation';
           data.time_since_install = (input.bytes[1] << 24) + (input.bytes[2] << 16) + (input.bytes[3] << 8) + input.bytes[4];
           break;
         default:
@@ -213,9 +213,9 @@ function decodeUplink(input) {
 
     case 6: // Debug
       var debug_obj2 = decodeDebugMessage(input.bytes);
-      data.sequenceNumber = debug_obj2.sequence_number;
-      data.debugCode = debug_obj2.debugCode;
-      data.debugCodeDescription = debug_obj2.debugCodeDescription;
+      data.sequence_number = debug_obj2.sequence_number;
+      data.debug_code = debug_obj2.debug_code;
+      data.debug_code_description = debug_obj2.debug_code_description;
       data.timestamp = debug_obj2.timestamp;
       data.type = 'debug';
       break;
@@ -236,9 +236,9 @@ function decodeUplink(input) {
 }
 
 function encodeDownlink(input) {
-  switch (input.data.fPort) {
-    case 55:
-      var i = DeviceUsageRequests.indexOf(input.data.DeviceUsageRequest);
+  switch (input.data.command) {
+    case 'Device Usage Request':
+      var i = DeviceUsageRequests.indexOf(input.data.device_usage_request);
       if (i === -1) {
         return {
           errors: ['invalid Device Usage Request'],
@@ -252,7 +252,7 @@ function encodeDownlink(input) {
       };
     default:
       return {
-        errors: ['invalid Device Usage Request'],
+        errors: ['invalid command'],
       };
   }
 }
@@ -263,8 +263,8 @@ function decodeDownlink(input) {
       return {
         // Decoded downlink (must be symmetric with encodeDownlink)
         data: {
-          fPort: input.fPort,
-          DeviceUsageRequest: DeviceUsageRequests[input.bytes[0]],
+          command: 'Device Usage Request',
+          device_usage_request: DeviceUsageRequests[input.bytes[0]],
         },
       };
     default:

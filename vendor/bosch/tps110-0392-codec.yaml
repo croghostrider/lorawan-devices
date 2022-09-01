@@ -25,13 +25,35 @@ uplinkDecoder:
       output:
         data:
           type: startup
-          debugCode: 205
-          debugCodeDescription: null
-          sequenceNumber: 33
-          firmwareVersion: '0.39.2'
-          resetCause: 0
-          resetReason: 'System Request'
+          debug_code: 205
+          debug_code_description: null
+          sequence_number: 33
+          firmware_version: '0.39.2'
+          reset_cause: 0
+          reset_reason: 'System Request'
           occupied: false
+          timestamp: 167772160
+    - description: Debug code 201 with time
+      input:
+        fPort: 6
+        bytes: [0xd0, 0x00, 0x00, 0x00, 0x97, 0x0b, 0x20, 0xc9, 0x00, 0x23]
+      output:
+        data:
+          type: debug
+          debug_code: 201
+          debug_code_description: LoRa join request failed
+          sequence_number: 35
+          timestamp: -805306368
+    - description: Debug code 205 with time
+      input:
+        fPort: 6
+        bytes: [0x0a, 0x00, 0x00, 0x00, 0x97, 0x03, 0x20, 0xcd, 0x00, 0x1f]
+      output:
+        data:
+          type: debug
+          debug_code: 205
+          debug_code_description: null
+          sequence_number: 31
           timestamp: 167772160
     - description: Debug code 209
       input:
@@ -40,21 +62,37 @@ uplinkDecoder:
       output:
         data:
           type: debug
-          debugCode: 209
-          debugCodeDescription: 'Cause for last reset: Power-on'
-          sequenceNumber: 25
+          debug_code: 209
+          debug_code_description: 'Cause for last reset: Power-on'
+          sequence_number: 25
           timestamp: 0
-    - description: Debug code 205 with time
+    - description: Debug code 717 with time
       input:
         fPort: 6
-        bytes: [0x0a, 0x00, 0x00, 0x00, 0x97, 0x03, 0x20, 0xcd, 0x00, 0x1f]
+        bytes: [0x45, 0x73, 0x01, 0x00, 0x97, 0x0c, 0x22, 0xcd, 0x00, 0x22]
       output:
         data:
           type: debug
-          debugCode: 205
-          debugCodeDescription: null
-          sequenceNumber: 31
-          timestamp: 167772160
+          debug_code: 717
+          debug_code_description: Confirmed uplink message not acknowledged after 8 re-tries
+          sequence_number: 34
+          timestamp: 1165164800
+    - description: Time running in occupied state
+      input:
+        fPort: 5
+        bytes: [0x01, 0x00, 0x01, 0x3b, 0x8c]
+      output:
+        data:
+          type: Time running in occupied state
+          time_in_seconds: 80780
+    - description: Number of parking status changes detected
+      input:
+        fPort: 5
+        bytes: [0x00, 0x00, 0x00, 0x00, 0x39]
+      output:
+        data:
+          type: Number of parking status changes detected
+          parking_status_changes: 57
     - description: Unknown FPort
       input:
         fPort: 42
@@ -70,16 +108,16 @@ downlinkEncoder:
     - description: request time running in occupied state
       input:
         data:
-          fPort: 55
-          DeviceUsageRequest: Time running in occupied state
+          command: Device Usage Request
+          device_usage_request: Time running in occupied state
       output:
         bytes: [1]
         fPort: 55
     - description: invalid Device Usage Request
       input:
         data:
-          fPort: 55
-          DeviceUsageRequest: Answer to everything 42
+          command: Device Usage Request
+          device_usage_request: Answer to everything 42
       output:
         errors:
           - invalid Device Usage Request
@@ -94,5 +132,5 @@ downlinkDecoder:
         bytes: [1]
       output:
         data:
-          fPort: 55
-          DeviceUsageRequest: Time running in occupied state
+          command: Device Usage Request
+          device_usage_request: Time running in occupied state
