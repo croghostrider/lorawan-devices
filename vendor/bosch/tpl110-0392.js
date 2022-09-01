@@ -43,7 +43,15 @@ var debugCodes = {
   1001: 'User configuration parameters are recovered',
   1003: 'Communication parameters are recovered',
 };
-
+var DeviceUsageRequests = [
+  'Number of parking status changes detected',
+  'Time running in occupied state',
+  'Number of uplink messages sent',
+  'Number of times radar has been triggered ',
+  'Time running since restart',
+  'Number of resets since installation',
+  'Time running since installation ',
+];
 function decodeDebugCode(bytes) {
   return ((bytes[2] & 0xf) << 8) + bytes[3];
 }
@@ -216,9 +224,52 @@ function decodeUplink(input) {
       data.type = 'temperature alert';
       data.temperature = decodeTemperature(input.bytes[0]);
       break;
+    default:
+      return {
+        errors: ['unknown FPort'],
+      };
   }
 
   return {
     data: data,
   };
+}
+
+function encodeDownlink(input) {
+  switch (input.data.fPort) {
+    case 55:
+      var i = DeviceUsageRequests.indexOf(input.data.DeviceUsageRequest);
+      if (i === -1) {
+        return {
+          errors: ['invalid Device Usage Request'],
+        };
+      }
+      return {
+        // LoRaWAN FPort used for the downlink message
+        fPort: 55,
+        // Encoded bytes
+        bytes: [i],
+      };
+    default:
+      return {
+        errors: ['invalid Device Usage Request'],
+      };
+  }
+}
+
+function decodeDownlink(input) {
+  switch (input.fPort) {
+    case 55:
+      return {
+        // Decoded downlink (must be symmetric with encodeDownlink)
+        data: {
+          fPort: input.fPort,
+          DeviceUsageRequest: DeviceUsageRequests[input.bytes[0]],
+        },
+      };
+    default:
+      return {
+        errors: ['invalid FPort'],
+      };
+  }
 }

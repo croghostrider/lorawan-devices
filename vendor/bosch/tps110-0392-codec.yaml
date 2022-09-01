@@ -55,3 +55,44 @@ uplinkDecoder:
           debugCodeDescription: null
           sequenceNumber: 31
           timestamp: 167772160
+    - description: Unknown FPort
+      input:
+        fPort: 42
+        bytes: [1, 42]
+      output:
+        errors:
+          - unknown FPort
+
+# Downlink encoder encodes JSON object into a binary data downlink (optional)
+downlinkEncoder:
+  fileName: tpl110-0392.js
+  examples:
+    - description: request time running in occupied state
+      input:
+        data:
+          fPort: 55
+          DeviceUsageRequest: Time running in occupied state
+      output:
+        bytes: [1]
+        fPort: 55
+    - description: invalid Device Usage Request
+      input:
+        data:
+          fPort: 55
+          DeviceUsageRequest: Answer to everything 42
+      output:
+        errors:
+          - invalid Device Usage Request
+
+# Downlink decoder decodes the encoded downlink message (optional, must be symmetric with downlinkEncoder)
+downlinkDecoder:
+  fileName: tpl110-0392.js
+  examples:
+    - description: request time running in occupied state
+      input:
+        fPort: 55
+        bytes: [1]
+      output:
+        data:
+          fPort: 55
+          DeviceUsageRequest: Time running in occupied state
