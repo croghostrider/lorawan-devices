@@ -43,7 +43,17 @@ var debug_codes = {
   1001: 'User configuration parameters are recovered',
   1003: 'Communication parameters are recovered',
 };
-var DeviceUsageRequests = [
+var ParkingStatusConfirmableConfiguration = [
+  'Confirmed',
+  'Unconfirmed with 1 uplink message',
+  'Unconfirmed with 2 uplink messages',
+  'Unconfirmed with 3 uplink messages',
+  'Unconfirmed with 4 uplink messages',
+];
+var DataRateConfiguration = ['DR0', 'DR1', 'DR2', 'DR3', 'DR4', 'DR5'];
+var HeartbeatFrequency = ['Short', 'Normal', 'Long', 'Test mode'];
+var DeviceInformationRequest = ['Device URN', 'Firmware version'];
+var DeviceUsageRequest = [
   'Number of parking status changes detected',
   'Time running in occupied state',
   'Number of uplink messages sent',
@@ -52,6 +62,11 @@ var DeviceUsageRequests = [
   'Number of resets since installation',
   'Time running since installation',
 ];
+var DebugConfiguration = ['Debug messages disabled ', '1 uplink message', '2 uplink message', '3 uplink message', '4 uplink message'];
+var TemperatureMeasurementsConfiguration = ['Temperature measurements disabled', 'Periodic Temperature measurements enabled', 'Threshold based temperature alert enabled'];
+var ADR = ['disabled', 'enabled'];
+var ADRoffset = ['DR - 0', 'DR - 1', 'DR - 2', 'DR - 3', 'DR - 4', 'DR - 5'];
+
 function decodeDebugCode(bytes) {
   return ((bytes[2] & 0xf) << 8) + bytes[3];
 }
@@ -237,19 +252,66 @@ function decodeUplink(input) {
 
 function encodeDownlink(input) {
   switch (input.data.command) {
+    case 'Parking status confirmable configuration':
+      var i = ParkingStatusConfirmableConfiguration.indexOf(input.data.device_usage_request);
+      if (i === -1) {
+        return {
+          errors: ['invalid Parking status confirmable configuration'],
+        };
+      }
+      return {
+        fPort: 51,
+        bytes: [i],
+      };
+    case 'DataRate configuration':
+      var i = DataRateConfiguration.indexOf(input.data.device_usage_request);
+      if (i === -1) {
+        return {
+          errors: ['invalid DataRate configuration'],
+        };
+      }
+      return {
+        fPort: 52,
+        bytes: [i],
+      };
+    case 'Heartbeat frequency':
+      var i = HeartbeatFrequency.indexOf(input.data.device_usage_request);
+      if (i === -1) {
+        return {
+          errors: ['invalid Heartbeat frequency'],
+        };
+      }
+      return {
+        fPort: 53,
+        bytes: [i],
+      };
+    case 'Device Information Request':
+      var i = DeviceInformationRequest.indexOf(input.data.device_usage_request);
+      if (i === -1) {
+        return {
+          errors: ['invalid Device Information Request'],
+        };
+      }
+      return {
+        fPort: 54,
+        bytes: [i],
+      };
     case 'Device Usage Request':
-      var i = DeviceUsageRequests.indexOf(input.data.device_usage_request);
+      var i = DeviceUsageRequest.indexOf(input.data.sub_command);
       if (i === -1) {
         return {
           errors: ['invalid Device Usage Request'],
         };
       }
       return {
-        // LoRaWAN FPort used for the downlink message
         fPort: 55,
-        // Encoded bytes
         bytes: [i],
       };
+    case 'Debug configuration':
+    case 'Temperature measurements configuration':
+    case 'ADR':
+    case 'ADR offse':
+    case 'Temperature Thresholds for temperature alerts':
     default:
       return {
         errors: ['invalid command'],
@@ -264,7 +326,7 @@ function decodeDownlink(input) {
         // Decoded downlink (must be symmetric with encodeDownlink)
         data: {
           command: 'Device Usage Request',
-          device_usage_request: DeviceUsageRequests[input.bytes[0]],
+          sub_command: DeviceUsageRequest[input.bytes[0]],
         },
       };
     default:

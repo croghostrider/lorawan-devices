@@ -109,7 +109,7 @@ downlinkEncoder:
       input:
         data:
           command: Device Usage Request
-          device_usage_request: Time running in occupied state
+          sub_command: Time running in occupied state
       output:
         bytes: [1]
         fPort: 55
@@ -117,7 +117,7 @@ downlinkEncoder:
       input:
         data:
           command: Device Usage Request
-          device_usage_request: Answer to everything 42
+          sub_command: Answer to everything 42
       output:
         errors:
           - invalid Device Usage Request
@@ -133,4 +133,4 @@ downlinkDecoder:
       output:
         data:
           command: Device Usage Request
-          device_usage_request: Time running in occupied state
+          sub_command: Time running in occupied state
